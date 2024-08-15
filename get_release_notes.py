@@ -118,7 +118,7 @@ def extract_issues(commit: str) -> tuple[str, ...]:
     """Return issues from commit."""
     issues = set()
     pattern = re.compile(r'[#^]([A-Z]+-\d+)|^\[([A-Z]+-\d+)]')
-    issues.update(match[0] for match in pattern.findall(commit))
+    issues.update(match[0] or match[1] for match in pattern.findall(commit))
     return tuple(issues)
 
 
