@@ -24,7 +24,7 @@ runs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version-file: '.python-version'
+        python-version-file: '${{ github.action_path }}/.python-version'
 
     - run: pip install httpx
       shell: bash
