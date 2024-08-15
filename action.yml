@@ -31,7 +31,7 @@ runs:
         last_tag=$(git rev-parse $(git describe --abbrev=0 --tags HEAD^))
         echo "Last tag commit: $last_tag"
         separator=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
-        git log --pretty=format:"$separator%n%H%n%B%n" $last_tag..HEAD | python get_release_notes.py > release_notes.txt
+        git log --pretty=format:"$separator%n%H%n%B%n" $last_tag..HEAD | python ${{ github.action_path }}/get_release_notes.py > release_notes.txt
         cat release_notes.txt
         curl -X POST -H 'Content-type: application/json' \
           --data '@release_notes.txt' \
