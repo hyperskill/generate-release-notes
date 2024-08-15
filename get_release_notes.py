@@ -156,7 +156,7 @@ def release_note(commit_message: str, sha: str) -> dict[str, dict[tuple[str, str
     return release_notes
 
 
-def release_notes(commits: tuple[str, str]) -> str:
+def generate_release_notes(commits: tuple[str, str]) -> str:
     """Return release notes for Branch or Tag."""
     release_notes = defaultdict(lambda: defaultdict(set))
     for sha, commit in commits:
@@ -189,9 +189,10 @@ def release_notes(commits: tuple[str, str]) -> str:
 
 
 if __name__ == '__main__':
+    title = sys.argv[1]
     text = sys.stdin.read()
     separator, text = text.split('\n', 1)
     commits = tuple(commit.strip().split('\n', 1) for commit in text.strip().split(separator))
-    release_notes = release_notes(commits)
+    release_notes = title + '\n' + generate_release_notes(commits)
     json.dump({'text': release_notes}, sys.stdout)
     sys.stdout.write('\n')
