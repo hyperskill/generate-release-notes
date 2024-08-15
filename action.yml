@@ -1,0 +1,42 @@
+name: Generate release notes
+description: Generate release notes
+
+inputs:
+  slack_webhook_url:
+    required: true
+    description: Slack webhook URL
+  youtrack_api_url:
+    required: true
+    description: YouTrack API URL
+  youtrack_token:
+    required: true
+    description: YouTrack API token
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version-file: '.python-version'
+
+    - run: pip install httpx
+      shell: bash
+
+    - name: Generate release notes
+      run: |
+        last_tag=$(git rev-parse $(git describe --abbrev=0 --tags HEAD^))
+        echo "Last tag commit: $last_tag"
+        separator=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+        git log --pretty=format:"$separator%n%H%n%B%n" $last_tag..HEAD | python get_release_notes.py > release_notes.txt
+        cat release_notes.txt
+        curl -X POST -H 'Content-type: application/json' \
+          --data '@release_notes.txt' \
+          ${{ inputs.slack_webhook_url }}
+      env:
+        YOUTRACK_API_URL: ${{ inputs.youtrack_api_url }}
+        YOUTRACK_API_TOKEN: ${{ inputs.youtrack_token }}
+      shell: bash
